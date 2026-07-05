@@ -32,6 +32,21 @@ def format_json(findings: list[Finding]) -> str:
     return json.dumps([f.to_dict() for f in findings], indent=2)
 
 
+def build_response(findings: list[Finding]) -> dict:
+    counts: dict[str, int] = {}
+    total = 0.0
+    for f in findings:
+        counts[f.severity.value] = counts.get(f.severity.value, 0) + 1
+        if f.estimated_monthly_usd:
+            total += f.estimated_monthly_usd
+    return {
+        "findings": [f.to_dict() for f in findings],
+        "summary": counts,
+        "estimated_monthly_usd": round(total, 2) if total else None,
+        "has_high_severity": exit_code(findings) == 1,
+    }
+
+
 def exit_code(findings: list[Finding]) -> int:
     for f in findings:
         if f.severity in (Severity.CRITICAL, Severity.HIGH):

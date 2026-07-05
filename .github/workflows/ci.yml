@@ -32,3 +32,26 @@ jobs:
           python -m src.cli scan --demo --format json
           code=$?
           if [ $code -gt 1 ]; then exit $code; fi
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: |
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          from api import app
+          c = app.test_client()
+          assert c.get('/health').json['status'] == 'ok'
+          r = c.get('/v1/scan?demo=true')
+          assert r.status_code == 200
+          body = r.get_json()
+          assert len(body['findings']) >= 5
+          assert body['has_high_severity'] is True
+          print('API smoke OK', body['summary'])
+          "

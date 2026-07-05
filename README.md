@@ -2,17 +2,33 @@
 
 Azure cost leak detector — idle VMs, orphaned disks, missing tags, and oversized workloads.
 
-## Quick start (no Azure)
+## Quick start (CLI, no Azure)
 
 ```powershell
 cd finops-guardian
 python -m src.cli scan --demo
 ```
 
-JSON output:
+## REST API (local or Heroku)
 
 ```powershell
-python -m src.cli scan --demo --format json
+cd finops-guardian
+pip install -r requirements.txt
+python -m src.api
+# GET http://localhost:8080/health
+# GET http://localhost:8080/v1/scan?demo=true
+```
+
+From workspace root: `.\scripts\run-finops-api-local.ps1`
+
+### Deploy to Heroku
+
+See [docs/heroku-deploy.md](docs/heroku-deploy.md) — Student Pack credit.
+
+```powershell
+heroku create your-finops-guardian
+git push heroku main
+curl "https://your-finops-guardian.herokuapp.com/v1/scan?demo=true"
 ```
 
 ## Live scan (requires Azure)
@@ -21,8 +37,6 @@ python -m src.cli scan --demo --format json
 az login
 python -m src.cli scan --subscription <SUBSCRIPTION_ID>
 ```
-
-App registration needs **Cost Management Reader** + **Reader** on the subscription.
 
 ## Checks
 
@@ -34,16 +48,6 @@ App registration needs **Cost Management Reader** + **Reader** on the subscripti
 | FIN-TAG-001 | Missing cost allocation tags | Low |
 | FIN-SIZE-001 | Oversized VMs (demo / Advisor) | High |
 
-Exit code `1` when HIGH or CRITICAL findings exist (useful for CI gates).
-
 ## CI
 
-```yaml
-python -m src.cli scan --demo
-```
-
-## Roadmap
-
-- Deploy scan API to Heroku (Student Pack credit)
-- Azure Cost Management API integration for spend trends
-- Scheduled GitHub Action with OIDC
+Lint + CLI demo + API smoke test on every push.
