@@ -9,7 +9,7 @@ cd finops-guardian
 python -m src.cli scan --demo
 ```
 
-## REST API (local or Heroku)
+## REST API (local, kind, or Heroku)
 
 ```powershell
 cd finops-guardian
@@ -21,7 +21,18 @@ python -m src.api
 
 From workspace root: `.\scripts\run-finops-api-local.ps1`
 
-### Deploy to Heroku
+### Deploy to kind (no credit card)
+
+See [docs/deploy-kind.md](docs/deploy-kind.md).
+
+```powershell
+.\scripts\deploy-finops-kind.ps1
+kubectl port-forward -n demo svc/finops-guardian 8081:8080
+```
+
+Image: `ghcr.io/shohrabniaz/finops-guardian:latest` — also synced via GitOps `root-app`.
+
+### Deploy to Heroku (optional — requires card verification)
 
 See [docs/heroku-deploy.md](docs/heroku-deploy.md) — Student Pack credit.
 
